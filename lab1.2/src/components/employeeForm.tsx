@@ -13,16 +13,16 @@ export default function EmployeeForm({ departments, onAddEmployee }: Props) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
+    setError(""); // clear old errors
 
     if (firstName.trim().length < 3) {
-      setError("First name must be at least 3 characters long.");
+      setError("First name must be at least 3 characters.");
       return;
     }
 
     onAddEmployee(firstName, lastName, department);
 
-    // clear form
+    // reset form
     setFirstName("");
     setLastName("");
     setDepartment(departments[0]);
