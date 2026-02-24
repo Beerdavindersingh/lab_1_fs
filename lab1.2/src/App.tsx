@@ -1,31 +1,53 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import EmployeeList from "./components/employeeList";
+import EmployeeForm from "./components/employeeForm";
 import Organization from "./components/organization";
+import { employeeService } from "./components/services/employeeService";
+import type { Department } from "./components/models/Department";
 
-function App() {
+export default function App() {
+  const [departments, setDepartments] = useState<Department[]>([]);
+
+  const loadDepartments = () => {
+    setDepartments(employeeService.getDepartments());
+  };
+
+  useEffect(() => {
+    loadDepartments();
+  }, []);
+
   return (
     <>
       <header>
-        <h1>Pixell River Employee Directory</h1>
-        <p>Welcome to the Pixell River Financial staff directory</p>
-
+        <h1>Pixell River Directory</h1>
         <nav>
-          <Link to="/employees">Employees</Link> |{" "}
+          <Link to="/employees" style={{ marginRight: 10 }}>
+            Employees
+          </Link>
           <Link to="/organization">Organization</Link>
         </nav>
       </header>
 
       <Routes>
-        <Route path="/employees" element={<EmployeeList />} />
+        <Route
+          path="/employees"
+          element={
+            <>
+              <EmployeeList departments={departments} />
+              <EmployeeForm refresh={loadDepartments} />
+            </>
+          }
+        />
         <Route path="/organization" element={<Organization />} />
-        <Route path="*" element={<EmployeeList />} />
+        <Route path="*" element={<Navigate to="/employees" />} />
       </Routes>
 
       <footer>
-        <p>Copyright Pixell River Financial © {new Date().getFullYear()}</p>
+        <p>
+          Copyright Pixell River Financial {new Date().getFullYear()}
+        </p>
       </footer>
     </>
   );
 }
-
-export default App;
