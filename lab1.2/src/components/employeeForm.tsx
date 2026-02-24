@@ -1,72 +1,75 @@
 import { useState } from "react";
+import { employeeService } from "../components/services/employeeService";
+import type { Department } from "../components/models/Department";
+import type { NewEmployee } from "../components/models/Employee";
 
-interface Props {
-  departments: string[];
-  onAddEmployee: (firstName: string, lastName: string, department: string) => void;
+interface EmployeeFormProps {
+  refresh: () => void;
 }
 
-export default function EmployeeForm({ departments, onAddEmployee }: Props) {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [department, setDepartment] = useState(departments[0]);
-  const [error, setError] = useState("");
+export default function EmployeeForm({ refresh }: EmployeeFormProps) {
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [departmentId, setDepartmentId] = useState<number>(1);
+  const [error, setError] = useState<string>("");
 
-  function handleSubmit(e: React.FormEvent) {
+  const departments: Department[] = employeeService.getDepartments();
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); // clear old errors
+    setError("");
 
     if (firstName.trim().length < 3) {
       setError("First name must be at least 3 characters.");
       return;
     }
 
-    onAddEmployee(firstName, lastName, department);
+    try {
+      const newEmployee: NewEmployee = {
+        firstName,
+        lastName,
+        departmentId
+      };
 
-    // reset form
-    setFirstName("");
-    setLastName("");
-    setDepartment(departments[0]);
-  }
+      employeeService.createEmployee(newEmployee);
+
+      // Clear form
+      setFirstName("");
+      setLastName("");
+      setDepartmentId(departments[0]?.id ?? 1);
+
+      refresh();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3>Add New Employee</h3>
-
+      <h3>Add Employee</h3>
       {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <div>
-        <label>First Name:</label><br />
-        <input
-          type="text"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-      </div>
-
-      <div>
-        <label>Last Name:</label><br />
-        <input
-          type="text"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
-      </div>
-
-      <div>
-        <label>Department:</label><br />
-        <select
-          value={department}
-          onChange={(e) => setDepartment(e.target.value)}
-        >
-          {departments.map((dept) => (
-            <option key={dept} value={dept}>
-              {dept}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <button type="submit">Add Employee</button>
+      <input
+        placeholder="First Name"
+        value={firstName}
+        onChange={e => setFirstName(e.target.value)}
+        required
+      />
+      <input
+        placeholder="Last Name"
+        value={lastName}
+        onChange={e => setLastName(e.target.value)}
+      />
+      <select
+        value={departmentId}
+        onChange={e => setDepartmentId(Number(e.target.value))}
+      >
+        {departments.map(d => (
+          <option key={d.id} value={d.id}>
+            {d.name}
+          </option>
+        ))}
+      </select>
+      <button type="submit">Add</button>
     </form>
   );
 }
