@@ -1,3 +1,4 @@
+// src/App.tsx
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import EmployeeList from "./components/employeeList";
@@ -9,8 +10,13 @@ import type { Department } from "./components/models/Department";
 export default function App() {
   const [departments, setDepartments] = useState<Department[]>([]);
 
-  const loadDepartments = () => {
-    setDepartments(employeeService.getDepartments());
+  const loadDepartments = async () => {
+    try {
+      const data = await employeeService.getDepartments();
+      setDepartments(data);
+    } catch (err) {
+      console.error("Failed to load departments", err);
+    }
   };
 
   useEffect(() => {
@@ -22,9 +28,7 @@ export default function App() {
       <header>
         <h1>Pixell River Directory</h1>
         <nav>
-          <Link to="/employees" style={{ marginRight: 10 }}>
-            Employees
-          </Link>
+          <Link to="/employees" style={{ marginRight: 10 }}>Employees</Link>
           <Link to="/organization">Organization</Link>
         </nav>
       </header>
@@ -44,9 +48,7 @@ export default function App() {
       </Routes>
 
       <footer>
-        <p>
-          Copyright Pixell River Financial {new Date().getFullYear()}
-        </p>
+        <p>Copyright Pixell River Financial {new Date().getFullYear()}</p>
       </footer>
     </>
   );
