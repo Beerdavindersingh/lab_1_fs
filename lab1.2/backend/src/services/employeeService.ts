@@ -1,17 +1,14 @@
 import { employeeRepo } from "../repositories/EmployeeRepo";
-import type { Employee } from "../models/Employee";
 
 export const employeeService = {
-  getEmployees(): Employee[] {
+  async getEmployees() {
     return employeeRepo.getAll();
   },
 
-  createEmployee(employee: Employee): Employee {
-
-    if (!employee.firstName || employee.firstName.trim().length < 3) {
+  async createEmployee(data: { firstName: string; lastName?: string; departmentId: number }) {
+    if (!data.firstName || data.firstName.trim().length < 3) {
       throw new Error("First name must be at least 3 characters");
     }
-
-    return employeeRepo.create(employee);
+    return employeeRepo.create(data);
   }
 };

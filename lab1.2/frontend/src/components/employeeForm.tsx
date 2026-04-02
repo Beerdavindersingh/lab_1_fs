@@ -1,6 +1,5 @@
-// src/components/employeeForm.tsx
 import { useState, useEffect } from "react";
-import { employeeService } from "./services/employeeService";
+import { employeeRepo } from "./repositories/employeeRepo";
 import type { Department } from "./models/Department";
 
 interface EmployeeFormProps {
@@ -14,36 +13,31 @@ export default function EmployeeForm({ refresh }: EmployeeFormProps) {
   const [error, setError] = useState("");
   const [departments, setDepartments] = useState<Department[]>([]);
 
- useEffect(() => {
-  const fetchDepartments = async () => {
-    try {
-      const deps = await employeeService.getDepartments();
-      console.log("Departments:", deps);
-      setDepartments(deps);
-      if (deps.length > 0) setDepartmentId(deps[0].id);
-    } catch (err) {
-      console.error("Failed to fetch departments", err);
-      setError("Could not load departments");
-    }
-  };
-  fetchDepartments();
-}, []);
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const deps = await employeeRepo.getDepartments();
+        setDepartments(deps);
+        if (deps.length > 0) setDepartmentId(deps[0].id);
+      } catch (err) {
+        console.error("Failed to fetch departments", err);
+        setError("Could not load departments");
+      }
+    };
+    fetchDepartments();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     try {
-      const res = await employeeService.createEmployee({ firstName, lastName, departmentId });
-      if (!res.success) {
-        setError(res.message || "Error adding employee");
-        return;
-      }
+      await employeeRepo.createEmployee({ firstName, lastName, departmentId });
       setFirstName("");
       setLastName("");
       setDepartmentId(departments[0]?.id || 0);
       refresh();
-    } catch (err) {
-      setError("Error adding employee");
+    } catch (err: any) {
+      setError(err.message || "Error adding employee");
       console.error(err);
     }
   };

@@ -8,13 +8,13 @@ export function useRoleForm(refresh: () => void) {
   const [roleName, setRoleName] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
       const newRole: NewRole = { firstName, lastName, roleName };
-      organizationService.createRole(newRole);
+      await organizationService.createRole(newRole);
 
       setFirstName("");
       setLastName("");
