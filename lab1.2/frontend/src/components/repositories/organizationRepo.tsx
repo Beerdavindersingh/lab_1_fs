@@ -1,23 +1,19 @@
-import type { Role, NewRole } from "../model/role";
+const API_URL = "";
 
-class OrganizationRepo {
-  private roles: Role[] = [
-    { id: 1, roleName: "CEO/Chair of Board", firstName: "Jo-Anne", lastName: "Sinclair" },
-    { id: 2, roleName: "COO/VP Operations", firstName: "Jackson", lastName: "Smith" }
-  ];
+export const organizationRepo = {
+  async getRoles() {
+    const res = await fetch(`${API_URL}/roles`);
+    if (!res.ok) throw new Error("Failed to fetch roles");
+    return res.json();
+  },
 
-  getRoles(): Role[] {
-    return [...this.roles];
+  async createRole(role: { roleName: string; firstName: string; lastName: string }) {
+    const res = await fetch(`${API_URL}/roles`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(role),
+    });
+    if (!res.ok) throw new Error("Failed to create role");
+    return res.json();
   }
-
-  createRole(newRole: NewRole): Role {
-    const newId =
-      Math.max(0, ...this.roles.map(r => r.id)) + 1;
-
-    const role: Role = { ...newRole, id: newId };
-    this.roles.push(role);
-    return role;
-  }
-}
-
-export const organizationRepo = new OrganizationRepo();
+};
